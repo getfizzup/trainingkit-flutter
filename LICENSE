@@ -1,1 +1,11 @@
-TODO: Add your license here.
+Copyright © FIZZUP SAS. All rights reserved.
+
+This package (the "TrainingKit Flutter bridge") and the TrainingKit SDKs it
+integrates are proprietary software of FIZZUP SAS. Use of TrainingKit requires
+a valid commercial license agreement with FIZZUP SAS.
+
+The source code in this repository is provided to licensees to illustrate and
+enable integration of TrainingKit into their own applications. It may not be
+redistributed, sublicensed, or used to build a competing product.
+
+To subscribe to FizzUp TrainingKit, contact business@fizzup.com.
