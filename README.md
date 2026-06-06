@@ -65,14 +65,27 @@ See the [example README](example/README.md) for the per-platform prerequisites
 
 ## Installation In An Existing Flutter App
 
-Add the package to your app `pubspec.yaml`:
+The package is **not published to pub.dev**. It is distributed as a Git
+dependency from its public repository. Add it to your app `pubspec.yaml`,
+pinning a release tag for reproducibility:
 
 ```yaml
 dependencies:
-  trainingkit_flutter: ^0.1.0
+  trainingkit_flutter:
+    git:
+      url: https://github.com/getfizzup/trainingkit-flutter
+      ref: v0.1.0
 ```
 
-Or, while developing against this repository locally:
+Equivalently, from the command line:
+
+```sh
+flutter pub add trainingkit_flutter \
+  --git-url https://github.com/getfizzup/trainingkit-flutter \
+  --git-ref v0.1.0
+```
+
+While developing against a local checkout, use a path dependency instead:
 
 ```yaml
 dependencies:
@@ -302,11 +315,14 @@ cd my_trainingkit_demo
 Add dependencies:
 
 ```sh
-flutter pub add trainingkit_flutter graphql_flutter
+flutter pub add graphql_flutter
+flutter pub add trainingkit_flutter \
+  --git-url https://github.com/getfizzup/trainingkit-flutter \
+  --git-ref v0.1.0
 ```
 
 During local package development, use a path dependency on this repository
-instead of the published package.
+instead of the Git dependency.
 
 Configure Android access to the FizzUp Maven repository (credentials in
 `android/local.properties`) and the iOS deployment target / HealthKit usage
