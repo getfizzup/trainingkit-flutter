@@ -1,3 +1,5 @@
+import java.util.Properties
+
 group = "com.fysiki.trainingkit_flutter"
 version = "1.0-SNAPSHOT"
 
@@ -25,6 +27,46 @@ plugins {
     id("com.android.library")
 }
 
+// Credentials and configuration are read from the host app's
+// `android/local.properties`, Gradle properties, or environment variables.
+val localProperties =
+    Properties().apply {
+        val file = rootProject.file("local.properties")
+        if (file.exists()) {
+            file.inputStream().use { load(it) }
+        }
+    }
+
+val githubUser: String? =
+    localProperties.getProperty("GithubUser")
+        ?: (findProperty("GithubUser") as String?)
+        ?: System.getenv("GITHUB_USERNAME")
+
+val githubToken: String? =
+    localProperties.getProperty("GithubToken")
+        ?: (findProperty("GithubToken") as String?)
+        ?: System.getenv("GITHUB_TOKEN")
+
+val chromecastReceiverApplicationId: String =
+    (
+        localProperties.getProperty("chromecastReceiverApplicationId")
+            ?: (findProperty("chromecastReceiverApplicationId") as String?)
+            ?: System.getenv("CHROMECAST_RECEIVER_APPLICATION_ID")
+            ?: ""
+    ).trim()
+
+repositories {
+    google()
+    mavenCentral()
+    maven {
+        url = uri("https://maven.pkg.github.com/getfizzup/trainingkit-android-sdk")
+        credentials {
+            username = githubUser
+            password = githubToken
+        }
+    }
+}
+
 android {
     namespace = "com.fysiki.trainingkit_flutter"
 
@@ -39,29 +81,19 @@ android {
         getByName("main") {
             java.srcDirs("src/main/kotlin")
         }
-        getByName("test") {
-            java.srcDirs("src/test/kotlin")
-        }
     }
 
     defaultConfig {
         minSdk = 24
+        buildConfigField(
+            "String",
+            "CHROMECAST_RECEIVER_APPLICATION_ID",
+            "\"$chromecastReceiverApplicationId\"",
+        )
     }
 
-    testOptions {
-        unitTests {
-            isIncludeAndroidResources = true
-            all {
-                it.useJUnitPlatform()
-
-                it.outputs.upToDateWhen { false }
-
-                it.testLogging {
-                    events("passed", "skipped", "failed", "standardOut", "standardError")
-                    showStandardStreams = true
-                }
-            }
-        }
+    buildFeatures {
+        buildConfig = true
     }
 }
 
@@ -72,6 +104,9 @@ kotlin {
 }
 
 dependencies {
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
-    testImplementation("org.mockito:mockito-core:5.0.0")
+    implementation("com.fysiki:trainingkit:v32.1")
+    implementation("com.google.android.gms:play-services-cast-framework:21.4.0")
+    implementation("androidx.appcompat:appcompat:1.7.1")
+    implementation("androidx.activity:activity-ktx:1.11.0")
+    implementation("androidx.core:core-ktx:1.17.0")
 }

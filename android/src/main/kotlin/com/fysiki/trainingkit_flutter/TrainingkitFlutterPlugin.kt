@@ -1,35 +1,66 @@
 package com.fysiki.trainingkit_flutter
 
+import android.app.Application
+import android.content.Context
+import android.content.Intent
+import com.fysiki.trainingkit.TrainingKit
+import com.fysiki.trainingkit.utils.DeviceIdHelper
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 
-/** TrainingkitFlutterPlugin */
-class TrainingkitFlutterPlugin :
+/** Flutter bridge for FizzUp TrainingKit. */
+class TrainingKitFlutterPlugin :
     FlutterPlugin,
     MethodCallHandler {
-    // The MethodChannel that will the communication between Flutter and native Android
-    //
-    // This local reference serves to register the plugin with the Flutter Engine and unregister it
-    // when the Flutter Engine is detached from the Activity
     private lateinit var channel: MethodChannel
+    private lateinit var context: Context
 
-    override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-        channel = MethodChannel(flutterPluginBinding.binaryMessenger, "trainingkit_flutter")
+    override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        context = binding.applicationContext
+        channel = MethodChannel(binding.binaryMessenger, "trainingkit_flutter")
         channel.setMethodCallHandler(this)
+
+        (context as? Application)?.let { application ->
+            TrainingKit.initialize(application)
+        }
     }
 
     override fun onMethodCall(
         call: MethodCall,
-        result: Result
+        result: Result,
     ) {
-        if (call.method == "getPlatformVersion") {
-            result.success("Android ${android.os.Build.VERSION.RELEASE}")
-        } else {
-            result.notImplemented()
+        when (call.method) {
+            "deviceIdentifier" -> result.success(DeviceIdHelper.getDeviceId(context))
+            "launchClassicWorkout" -> launchWorkout(ClassicWorkoutActivity::class.java, call, result)
+            "launchVideoWorkout" -> launchWorkout(VideoWorkoutActivity::class.java, call, result)
+            else -> result.notImplemented()
         }
+    }
+
+    private fun launchWorkout(
+        activity: Class<*>,
+        call: MethodCall,
+        result: Result,
+    ) {
+        val jsonString = call.argument<String>("jsonString")
+        val token = call.argument<String>("token")
+
+        if (jsonString == null || token == null) {
+            result.error("invalid_arguments", "Expected jsonString and token arguments.", null)
+            return
+        }
+
+        val intent =
+            Intent(context, activity).apply {
+                putExtra("jsonString", jsonString)
+                putExtra("token", token)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        context.startActivity(intent)
+        result.success(null)
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
