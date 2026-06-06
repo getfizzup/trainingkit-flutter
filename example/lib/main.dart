@@ -1,58 +1,58 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
-
-import 'package:flutter/services.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:trainingkit_flutter/trainingkit_flutter.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+import 'screens/sessions_screen.dart';
+import 'screens/welcome_screen.dart';
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+/// FizzUp demo GraphQL endpoint.
+const String _endpoint = 'https://cloud.demo.fizzup.com/graphql';
 
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
-  final _trainingkitFlutterPlugin = TrainingkitFlutter();
-
-  @override
-  void initState() {
-    super.initState();
-    initPlatformState();
+  // The TrainingKit device identifier is stable for a device installation, so
+  // we read it once and send it as a header on every GraphQL request.
+  String deviceId = '';
+  try {
+    deviceId = await deviceIdentifier();
+  } on TrainingKitException catch (error) {
+    debugPrint('TrainingKit device identifier unavailable: ${error.message}');
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
-    try {
-      platformVersion =
-          await _trainingkitFlutterPlugin.getPlatformVersion() ?? 'Unknown platform version';
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
+  final link = HttpLink(
+    _endpoint,
+    defaultHeaders: {'X-TrainingKit-Device': deviceId},
+  );
 
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
+  final client = ValueNotifier<GraphQLClient>(
+    GraphQLClient(link: link, cache: GraphQLCache()),
+  );
 
-    setState(() {
-      _platformVersion = platformVersion;
-    });
-  }
+  runApp(TrainingKitDemoApp(client: client));
+}
+
+class TrainingKitDemoApp extends StatelessWidget {
+  const TrainingKitDemoApp({super.key, required this.client});
+
+  final ValueNotifier<GraphQLClient> client;
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Plugin example app')),
-        body: Center(child: Text('Running on: $_platformVersion\n')),
+    return GraphQLProvider(
+      client: client,
+      child: MaterialApp(
+        title: 'TrainingKit Flutter Demo',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorSchemeSeed: const Color(0xFF007AFF),
+          useMaterial3: true,
+        ),
+        initialRoute: WelcomeScreen.routeName,
+        routes: {
+          WelcomeScreen.routeName: (_) => const WelcomeScreen(),
+          SessionsScreen.routeName: (_) => const SessionsScreen(),
+        },
       ),
     );
   }
