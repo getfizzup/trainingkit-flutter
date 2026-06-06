@@ -1,7 +1,15 @@
 name: trainingkit_flutter
-description: "Flutter bridge for FizzUp TrainingKit."
-version: 0.0.1
-homepage:
+description: "Flutter bridge for FizzUp TrainingKit. Launch classic and video workouts from a GraphQL session payload."
+version: 0.1.0
+homepage: https://github.com/getfizzup/trainingkit-flutter
+repository: https://github.com/getfizzup/trainingkit-flutter
+publish_to: 'none'
+
+topics:
+  - trainingkit
+  - fizzup
+  - workout
+  - fitness
 
 environment:
   sdk: ^3.12.1
@@ -10,7 +18,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  plugin_platform_interface: ^2.0.2
 
 dev_dependencies:
   flutter_test:
@@ -36,9 +43,9 @@ flutter:
     platforms:
       android:
         package: com.fysiki.trainingkit_flutter
-        pluginClass: TrainingkitFlutterPlugin
+        pluginClass: TrainingKitFlutterPlugin
       ios:
-        pluginClass: TrainingkitFlutterPlugin
+        pluginClass: TrainingKitFlutterPlugin
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:
