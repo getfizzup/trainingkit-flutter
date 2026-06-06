@@ -61,10 +61,7 @@ void main() {
         return null;
       });
 
-      await launchWorkout({
-        'format': 'PLAY',
-        'trainingKitToken': 'token-xyz',
-      });
+      await launchWorkout({'format': 'PLAY', 'trainingKitToken': 'token-xyz'});
 
       expect(log.single.method, 'launchVideoWorkout');
       expect(log.single.arguments['token'], 'token-xyz');
