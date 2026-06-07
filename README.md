@@ -121,9 +121,34 @@ The host app does not need to add the TrainingKit Swift Package manually.
 CocoaPods integrates the package through `trainingkit_flutter.podspec` and its
 `prepare_command`.
 
-Because the bridge ships a binary `xcframework`, the iOS plugin uses CocoaPods
-(not Swift Package Manager). Make sure your app uses CocoaPods for iOS (the
-default for `flutter create`).
+### Use CocoaPods, not Swift Package Manager
+
+Because the bridge ships a binary `xcframework`, the iOS plugin integrates
+through **CocoaPods**. It does not support Flutter's Swift Package Manager (SPM).
+
+Flutter 3.29+ enables SPM by default. With SPM enabled, the iOS build fails at
+link time with undefined Flutter symbols, for example:
+
+```text
+Undefined symbol: _OBJC_CLASS_$_FlutterMethodChannel
+Undefined symbol: _OBJC_CLASS_$_FlutterAppDelegate
+Linker command failed with exit code 1
+```
+
+Disable SPM in the consuming app so Flutter is provided through CocoaPods:
+
+```sh
+flutter config --no-enable-swift-package-manager
+flutter clean
+flutter run
+```
+
+`flutter config` is a global (per-machine) Flutter setting. If other projects of
+yours rely on SPM, re-enable it with
+`flutter config --enable-swift-package-manager` when you switch back — but this
+plugin requires it to stay disabled while you build for iOS.
+
+### Deployment target
 
 Set the iOS deployment target to **15.1 or higher** in `ios/Podfile` and in your
 Xcode project:
