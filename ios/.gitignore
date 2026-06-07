@@ -37,6 +37,6 @@ Icon?
 /Flutter/ephemeral/
 /Flutter/flutter_export_environment.sh
 
-# The TrainingKit XCFramework is fetched from getfizzup/trainingkit-ios-sdk
-# during `pod install` (see scripts/fetch-ios-trainingkit.sh). Do not commit it.
-Vendor/TrainingKit.xcframework/
+# Swift Package Manager
+.build/
+.swiftpm/
