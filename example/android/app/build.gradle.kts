@@ -44,3 +44,8 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // Used by MainActivity to force the per-app locale (demo only).
+    implementation("androidx.appcompat:appcompat:1.7.0")
+}

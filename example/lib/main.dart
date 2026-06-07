@@ -25,10 +25,12 @@ Future<void> main() async {
     defaultHeaders: {
       'X-TrainingKit-Device': deviceId,
       // The FizzUp API localizes workout content (names, exercise instructions,
-      // voice-coaching text…) from the Accept-Language header. This demo's UI
-      // and voice coaching are French, so we request French content. In a real
-      // app, pass the user's locale here.
-      'Accept-Language': 'fr-FR',
+      // voice-coaching text…) from the Accept-Language header. We derive it from
+      // the app's locale so the content matches the app's language — no
+      // hard-coded language. The app is forced to French on the native side
+      // (see ios/Runner/AppDelegate.swift and android MainActivity.kt), which
+      // also drives TrainingKit's native UI language.
+      'Accept-Language': _acceptLanguage(),
     },
   );
 
@@ -37,6 +39,16 @@ Future<void> main() async {
   );
 
   runApp(TrainingKitDemoApp(client: client));
+}
+
+/// Builds an `Accept-Language` value (e.g. `fr-FR`) from the app's current
+/// locale, as reported by the platform.
+String _acceptLanguage() {
+  final locale = WidgetsBinding.instance.platformDispatcher.locale;
+  final country = locale.countryCode;
+  return (country == null || country.isEmpty)
+      ? locale.languageCode
+      : '${locale.languageCode}-$country';
 }
 
 class TrainingKitDemoApp extends StatelessWidget {

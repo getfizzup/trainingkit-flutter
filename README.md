@@ -222,12 +222,14 @@ Future<void> main() async {
 
   final deviceId = await deviceIdentifier();
 
+  final locale = WidgetsBinding.instance.platformDispatcher.locale;
+
   final link = HttpLink(
     'https://cloud.demo.fizzup.com/graphql',
     defaultHeaders: {
       'X-TrainingKit-Device': deviceId,
-      // The API localizes workout content from Accept-Language.
-      'Accept-Language': 'fr-FR',
+      // Derive Accept-Language from the app locale (see "Language" below).
+      'Accept-Language': '${locale.languageCode}-${locale.countryCode}',
     },
   );
 
@@ -243,13 +245,46 @@ Future<void> main() async {
 session payload it returns already carries `WorkoutBlockSession` /
 `WorkoutVideoSession`, which the launcher uses to dispatch.
 
-### Content language
+### Language
 
-The FizzUp API localizes workout content — names, exercise instructions, and the
-voice-coaching text spoken during a workout — from the **`Accept-Language`**
-header. Send the locale you want (for example `fr-FR`) so the native workout
-experience matches your app's language. Without it, the API serves its default
-language (English).
+A TrainingKit workout has two layers of language:
+
+- **Content** — workout names, exercise instructions, and the voice-coaching
+  text spoken during a workout — comes from the GraphQL API and is localized
+  from the **`Accept-Language`** request header. Without it, the API serves its
+  default language (English).
+- **Native UI** — the buttons and labels of the workout screen — is localized by
+  the native SDK from the **app's locale**. TrainingKit exposes no language API;
+  it follows the device/app language, the same way any native app does.
+
+To keep both layers consistent, derive `Accept-Language` from the app's locale
+(`WidgetsBinding.instance.platformDispatcher.locale`) rather than hard-coding a
+value. The content then follows the same language as the native UI.
+
+> [!IMPORTANT]
+> **The app must declare the languages it supports**, or the native UI stays in
+> English even on a localized device. iOS only serves a framework's localized
+> resources for languages the host app lists, and Flutter apps ship with English
+> only by default. Declare your languages:
+>
+> - **iOS** — add `CFBundleLocalizations` to `ios/Runner/Info.plist`:
+>
+>   ```xml
+>   <key>CFBundleLocalizations</key>
+>   <array>
+>     <string>en</string>
+>     <string>fr</string>
+>   </array>
+>   ```
+>
+> - **Android** — add a `res/xml/locales_config.xml` listing the locales and
+>   reference it from `<application android:localeConfig="@xml/locales_config">`.
+
+To pin the whole experience to one language regardless of the device (as the demo
+does for French), also set the app's locale on the native side — `AppleLanguages`
+on iOS, `AppCompatDelegate.setApplicationLocales` on Android — and the derived
+`Accept-Language` follows automatically. See the
+[example](example/lib/main.dart).
 
 ## Listing Workouts
 
