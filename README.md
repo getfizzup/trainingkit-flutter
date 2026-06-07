@@ -257,7 +257,11 @@ Future<void> main() async {
 
   final link = HttpLink(
     'https://cloud.demo.fizzup.com/graphql',
-    defaultHeaders: {'X-TrainingKit-Device': deviceId},
+    defaultHeaders: {
+      'X-TrainingKit-Device': deviceId,
+      // The API localizes workout content from Accept-Language.
+      'Accept-Language': 'fr-FR',
+    },
   );
 
   final client = ValueNotifier(
@@ -271,6 +275,14 @@ Future<void> main() async {
 `graphql_flutter` automatically adds `__typename` to every selection set, so the
 session payload it returns already carries `WorkoutBlockSession` /
 `WorkoutVideoSession`, which the launcher uses to dispatch.
+
+### Content language
+
+The FizzUp API localizes workout content — names, exercise instructions, and the
+voice-coaching text spoken during a workout — from the **`Accept-Language`**
+header. Send the locale you want (for example `fr-FR`) so the native workout
+experience matches your app's language. Without it, the API serves its default
+language (English).
 
 ## Listing Workouts
 

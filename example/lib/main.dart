@@ -22,7 +22,14 @@ Future<void> main() async {
 
   final link = HttpLink(
     _endpoint,
-    defaultHeaders: {'X-TrainingKit-Device': deviceId},
+    defaultHeaders: {
+      'X-TrainingKit-Device': deviceId,
+      // The FizzUp API localizes workout content (names, exercise instructions,
+      // voice-coaching text…) from the Accept-Language header. This demo's UI
+      // and voice coaching are French, so we request French content. In a real
+      // app, pass the user's locale here.
+      'Accept-Language': 'fr-FR',
+    },
   );
 
   final client = ValueNotifier<GraphQLClient>(
