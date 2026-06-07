@@ -12,8 +12,8 @@ automatically.
 
 - `deviceIdentifier()` returns the native TrainingKit device identifier.
 - `launchWorkout(session)` launches a workout from a GraphQL session payload.
-- iOS bridge is included in the package; `TrainingKit.xcframework` is fetched
-  from `getfizzup/trainingkit-ios-sdk@main` during CocoaPods installation.
+- iOS bridge is a Swift Package; it depends on the TrainingKit iOS SDK
+  (`getfizzup/trainingkit-ios-sdk`) through Swift Package Manager.
 - Android bridge and TrainingKit activities are included in the package.
 - Flutter plugin autolinking handles the native package integration.
 
@@ -107,55 +107,29 @@ flutter run
 
 ## iOS Setup
 
-The iOS TrainingKit binary is not versioned in this repository. It is fetched
-from the stable `main` branch of `https://github.com/getfizzup/trainingkit-ios-sdk`
-during `pod install` through the package podspec.
+The iOS plugin is a **Swift Package**. It depends on the TrainingKit iOS SDK
+(`getfizzup/trainingkit-ios-sdk`), itself a Swift package whose `TrainingKit`
+product is a binary target (`TrainingKit.xcframework`). Swift Package Manager
+resolves and links it automatically — there is nothing to vendor, fetch, or add
+manually.
 
-CocoaPods installs the downloaded XCFramework inside the package at:
+### Enable Swift Package Manager
 
-```text
-ios/Vendor/TrainingKit.xcframework
-```
-
-The host app does not need to add the TrainingKit Swift Package manually.
-CocoaPods integrates the package through `trainingkit_flutter.podspec` and its
-`prepare_command`.
-
-### Use CocoaPods, not Swift Package Manager
-
-Because the bridge ships a binary `xcframework`, the iOS plugin integrates
-through **CocoaPods**. It does not support Flutter's Swift Package Manager (SPM).
-
-Flutter 3.29+ enables SPM by default. With SPM enabled, the iOS build fails at
-link time with undefined Flutter symbols, for example:
-
-```text
-Undefined symbol: _OBJC_CLASS_$_FlutterMethodChannel
-Undefined symbol: _OBJC_CLASS_$_FlutterAppDelegate
-Linker command failed with exit code 1
-```
-
-Disable SPM in the consuming app so Flutter is provided through CocoaPods:
+This plugin requires Flutter's Swift Package Manager support, which is enabled by
+default on Flutter 3.29+. If you previously disabled it, turn it back on:
 
 ```sh
-flutter config --no-enable-swift-package-manager
-flutter clean
-flutter run
+flutter config --enable-swift-package-manager
 ```
 
-`flutter config` is a global (per-machine) Flutter setting. If other projects of
-yours rely on SPM, re-enable it with
-`flutter config --enable-swift-package-manager` when you switch back — but this
-plugin requires it to stay disabled while you build for iOS.
+The first iOS build resolves the TrainingKit package from GitHub, so it needs
+network access. No CocoaPods setup is required for this plugin.
 
 ### Deployment target
 
-Set the iOS deployment target to **15.1 or higher** in `ios/Podfile` and in your
-Xcode project:
-
-```ruby
-platform :ios, '15.1'
-```
+Set the iOS deployment target to **15.1 or higher** in your Xcode project
+(`Runner` target → **iOS Deployment Target**). The plugin's Swift package
+declares iOS 15.1 as its minimum.
 
 The classic workout flow requests HealthKit authorization. Add usage
 descriptions to `ios/Runner/Info.plist`, otherwise the app crashes when a
@@ -166,13 +140,6 @@ classic workout starts:
 <string>Read workout and energy data to track your sessions.</string>
 <key>NSHealthUpdateUsageDescription</key>
 <string>Save completed workouts to Apple Health.</string>
-```
-
-For local package development, you can fetch the framework manually before
-running pods:
-
-```sh
-ios/scripts/fetch-ios-trainingkit.sh
 ```
 
 ## Android Setup
@@ -385,30 +352,25 @@ flutter pub get
 flutter run
 ```
 
-### iOS: `TrainingKit.xcframework` missing
+### iOS: Swift Package Manager is disabled
 
-If CocoaPods fails because the vendored framework is missing
-(`ios/Vendor/TrainingKit.xcframework`), fetch it manually and reinstall pods:
-
-```sh
-ios/scripts/fetch-ios-trainingkit.sh
-cd ios
-pod install
-```
-
-The script honors `TRAININGKIT_IOS_SDK_URL` if you need to test a different
-archive URL temporarily:
+This plugin is distributed as a Swift Package. If the iOS build cannot find the
+plugin or the TrainingKit SDK, make sure SPM is enabled and rebuild:
 
 ```sh
-TRAININGKIT_IOS_SDK_URL=https://github.com/getfizzup/trainingkit-ios-sdk/archive/refs/heads/main.zip \
-  ios/scripts/fetch-ios-trainingkit.sh
+flutter config --enable-swift-package-manager
+flutter clean
+flutter run
 ```
 
-### iOS: deployment target / pod install errors
+The first build resolves the TrainingKit package from GitHub, so it needs
+network access.
 
-Make sure the app's iOS deployment target is **15.1 or higher**, both in
-`ios/Podfile` (`platform :ios, '15.1'`) and in the Xcode project
-(`IPHONEOS_DEPLOYMENT_TARGET`).
+### iOS: deployment target
+
+Make sure the app's iOS deployment target is **15.1 or higher** in the Xcode
+project (`IPHONEOS_DEPLOYMENT_TARGET`). The plugin's Swift package declares iOS
+15.1 as its minimum.
 
 ### iOS: crash when launching a classic workout
 
@@ -425,7 +387,7 @@ The GitHub Packages Maven repository requires credentials. Check that
 ## Package Development Checklist
 
 - Run `flutter analyze` and `flutter test` at the package root.
-- The `ios/Vendor/TrainingKit.xcframework` directory is gitignored; it is
-  downloaded from `getfizzup/trainingkit-ios-sdk@main` during CocoaPods
-  installation.
+- The iOS plugin is a Swift Package (`ios/trainingkit_flutter/Package.swift`)
+  that depends on `getfizzup/trainingkit-ios-sdk`; SPM resolves
+  `TrainingKit.xcframework` from that package — nothing is vendored here.
 - The demo in `example/` can be used as an integration test for the package.
