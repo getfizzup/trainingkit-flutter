@@ -342,6 +342,37 @@ Future<void> launchWorkoutById(BuildContext context, String id) async {
 - classic session → `launchClassicWorkout(jsonString, trainingKitToken)`
 - video session → `launchVideoWorkout(jsonString, trainingKitToken)`
 
+## Handling Workout Completion
+
+Listen to `workoutEvents()` to react when a workout is saved or quit — for
+example to persist results to your backend.
+
+```dart
+import 'package:trainingkit_flutter/trainingkit_flutter.dart';
+
+final subscription = workoutEvents().listen((event) {
+  switch (event.type) {
+    case TrainingKitEventType.save:
+      // The workout finished with a result. `event.data` mirrors the native
+      // SDK's SaveWorkoutState (richer on iOS than on Android). Persist it.
+      break;
+    case TrainingKitEventType.quit:
+      // The user quit the workout without completing it.
+      break;
+    case TrainingKitEventType.event:
+      // Optional: a TrainingKit analytics event (event.name / event.properties).
+      break;
+  }
+});
+
+// Stop listening when you no longer need it (e.g. in dispose()):
+await subscription.cancel();
+```
+
+Start listening **before** calling `launchWorkout` so no event is missed. The
+event types mirror the FizzUp Web SDK's `onWorkoutSave` / `onWorkoutQuit` /
+`onWorkoutEvent`.
+
 ## Building A Demo App From Scratch
 
 Create a new Flutter app:
