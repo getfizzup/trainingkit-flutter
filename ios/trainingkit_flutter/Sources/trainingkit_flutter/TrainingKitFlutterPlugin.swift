@@ -4,7 +4,7 @@ import TrainingKit
 import UIKit
 
 @objc(TrainingKitFlutterPlugin)
-public class TrainingKitFlutterPlugin: NSObject, FlutterPlugin {
+public class TrainingKitFlutterPlugin: NSObject, FlutterPlugin, FlutterStreamHandler {
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(
       name: "trainingkit_flutter",
@@ -12,6 +12,25 @@ public class TrainingKitFlutterPlugin: NSObject, FlutterPlugin {
     )
     let instance = TrainingKitFlutterPlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
+
+    let eventChannel = FlutterEventChannel(
+      name: "trainingkit_flutter/events",
+      binaryMessenger: registrar.messenger()
+    )
+    eventChannel.setStreamHandler(instance)
+  }
+
+  public func onListen(
+    withArguments arguments: Any?,
+    eventSink events: @escaping FlutterEventSink
+  ) -> FlutterError? {
+    TrainingKitEventBridge.shared.setSink(events)
+    return nil
+  }
+
+  public func onCancel(withArguments arguments: Any?) -> FlutterError? {
+    TrainingKitEventBridge.shared.setSink(nil)
+    return nil
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {

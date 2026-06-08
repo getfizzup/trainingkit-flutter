@@ -10,6 +10,7 @@ import com.fysiki.trainingkit.interfaces.WorkoutVideoKitInterface
 import com.fysiki.trainingkit.states.SaveWorkoutState
 import com.fysiki.trainingkit.utils.JWTVerificationException
 import com.fysiki.trainingkit.utils.TrackingData
+import com.google.gson.Gson
 import org.jdeferred.Promise
 import org.jdeferred.impl.DeferredObject
 import org.json.JSONObject
@@ -51,7 +52,7 @@ class VideoWorkoutActivity : AppCompatActivity(), WorkoutVideoKitInterface {
     }
 
     override fun saveWorkout(saveState: SaveWorkoutState): Promise<*, *, *> {
-        Log.d(TAG, "Save Video Workout")
+        TrainingKitEvents.emitSave(toJson(saveState))
         val deferred = DeferredObject<Any?, Any?, Any?>()
         deferred.resolve(null)
         finish()
@@ -73,7 +74,7 @@ class VideoWorkoutActivity : AppCompatActivity(), WorkoutVideoKitInterface {
     override fun setupChromecastButton(castButton: MediaRouteButton) {}
 
     override fun trackEvent(data: TrackingData) {
-        Log.d(TAG, "Track Event: $data")
+        TrainingKitEvents.emitEvent("event", toJson(data))
     }
 
     override fun onTokenVerificationError(exception: JWTVerificationException) {
@@ -82,6 +83,13 @@ class VideoWorkoutActivity : AppCompatActivity(), WorkoutVideoKitInterface {
     }
 
     override fun isAdmin(): Boolean = false
+
+    private fun toJson(value: Any?): String =
+        try {
+            Gson().toJson(value)
+        } catch (exception: Exception) {
+            "{}"
+        }
 
     companion object {
         private const val TAG = "VideoWorkoutActivity"

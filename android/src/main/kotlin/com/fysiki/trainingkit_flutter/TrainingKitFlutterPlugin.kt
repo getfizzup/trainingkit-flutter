@@ -6,6 +6,7 @@ import android.content.Intent
 import com.fysiki.trainingkit.TrainingKit
 import com.fysiki.trainingkit.utils.DeviceIdHelper
 import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -16,12 +17,16 @@ class TrainingKitFlutterPlugin :
     FlutterPlugin,
     MethodCallHandler {
     private lateinit var channel: MethodChannel
+    private lateinit var eventChannel: EventChannel
     private lateinit var context: Context
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         context = binding.applicationContext
         channel = MethodChannel(binding.binaryMessenger, "trainingkit_flutter")
         channel.setMethodCallHandler(this)
+
+        eventChannel = EventChannel(binding.binaryMessenger, "trainingkit_flutter/events")
+        eventChannel.setStreamHandler(TrainingKitEvents)
 
         (context as? Application)?.let { application ->
             TrainingKit.initialize(application)
@@ -65,5 +70,6 @@ class TrainingKitFlutterPlugin :
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
+        eventChannel.setStreamHandler(null)
     }
 }

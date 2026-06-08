@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:trainingkit_flutter/trainingkit_flutter.dart';
@@ -6,10 +8,47 @@ import '../graphql/queries.dart';
 
 /// Lists the demo workouts, grouped by format, and launches the native
 /// TrainingKit experience when one is tapped.
-class SessionsScreen extends StatelessWidget {
+///
+/// It also subscribes to [workoutEvents] to react when a workout is saved or
+/// quit — the "handle completion" step.
+class SessionsScreen extends StatefulWidget {
   const SessionsScreen({super.key});
 
   static const routeName = '/sessions';
+
+  @override
+  State<SessionsScreen> createState() => _SessionsScreenState();
+}
+
+class _SessionsScreenState extends State<SessionsScreen> {
+  StreamSubscription<TrainingKitEvent>? _events;
+
+  @override
+  void initState() {
+    super.initState();
+    _events = workoutEvents().listen(_onWorkoutEvent);
+  }
+
+  @override
+  void dispose() {
+    _events?.cancel();
+    super.dispose();
+  }
+
+  void _onWorkoutEvent(TrainingKitEvent event) {
+    if (!mounted) return;
+
+    final message = switch (event.type) {
+      TrainingKitEventType.save =>
+        'Séance enregistrée (${event.data?.length ?? 0} champs)',
+      TrainingKitEventType.quit => 'Séance quittée',
+      TrainingKitEventType.event => null, // analytics, ignored in the demo
+    };
+
+    if (message != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

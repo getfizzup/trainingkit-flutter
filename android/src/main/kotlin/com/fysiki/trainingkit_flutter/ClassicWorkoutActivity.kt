@@ -16,9 +16,12 @@ import com.fysiki.trainingkit.states.SaveWorkoutState
 import com.fysiki.trainingkit.utils.DeviceIdHelper
 import com.fysiki.trainingkit.utils.JWTVerificationException
 import com.fysiki.trainingkit.utils.Tracking
+import com.google.gson.Gson
 import org.json.JSONObject
 
 class ClassicWorkoutActivity : AppCompatActivity(), TrainingKitInterface {
+    private var didSave = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
@@ -72,7 +75,8 @@ class ClassicWorkoutActivity : AppCompatActivity(), TrainingKitInterface {
     }
 
     override fun trackEvent(name: Tracking.Event, properties: Map<Tracking.Property, String>?) {
-        Log.d(TAG, "Track Event: $name, $properties")
+        val props = properties?.entries?.associate { it.key.toString() to it.value } ?: emptyMap()
+        TrainingKitEvents.emitEvent(name.toString(), toJson(props))
     }
 
     override fun goNextScreen(state: SaveWorkoutState?) {
@@ -82,11 +86,15 @@ class ClassicWorkoutActivity : AppCompatActivity(), TrainingKitInterface {
     override fun shouldDisplayCloseButton(): Boolean = true
 
     override fun closeGoMode(state: SaveWorkoutState?) {
+        if (!didSave) {
+            TrainingKitEvents.emitQuit()
+        }
         finish()
     }
 
     override fun saveWorkout(state: SaveWorkoutState) {
-        Log.d(TAG, "Save Workout")
+        didSave = true
+        TrainingKitEvents.emitSave(toJson(state))
         finish()
     }
 
@@ -102,6 +110,13 @@ class ClassicWorkoutActivity : AppCompatActivity(), TrainingKitInterface {
     override fun enableMusicStyle(value: Any?) {}
 
     override fun disableMusicStyle(value: Any?) {}
+
+    private fun toJson(value: Any?): String =
+        try {
+            Gson().toJson(value)
+        } catch (exception: Exception) {
+            "{}"
+        }
 
     companion object {
         private const val TAG = "ClassicWorkoutActivity"
