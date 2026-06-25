@@ -9,13 +9,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
-import com.fysiki.trainingkit.fragments.GoFragment
-import com.fysiki.trainingkit.interfaces.TrainingKitInterface
-import com.fysiki.trainingkit.models.MusicPlaylist
-import com.fysiki.trainingkit.states.SaveWorkoutState
-import com.fysiki.trainingkit.utils.DeviceIdHelper
-import com.fysiki.trainingkit.utils.JWTVerificationException
-import com.fysiki.trainingkit.utils.Tracking
+import com.fizzup.trainingkit.fragments.GoFragment
+import com.fizzup.trainingkit.interfaces.TrainingKitInterface
+import com.fizzup.trainingkit.models.MusicPlaylist
+import com.fizzup.trainingkit.states.SaveWorkoutState
+import com.fizzup.trainingkit.utils.DeviceIdHelper
+import com.fizzup.trainingkit.utils.JWTVerificationException
+import com.fizzup.trainingkit.utils.Tracking
 import com.google.gson.Gson
 import org.json.JSONObject
 

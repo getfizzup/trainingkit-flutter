@@ -444,7 +444,7 @@ Add `NSHealthShareUsageDescription` and `NSHealthUpdateUsageDescription` to
 `ios/Runner/Info.plist`. The classic workout flow requests HealthKit
 authorization and iOS terminates the app if these usage strings are missing.
 
-### Android: cannot resolve `com.fysiki:trainingkit`
+### Android: cannot resolve `com.fizzup:trainingkit`
 
 The GitHub Packages Maven repository requires credentials. Check that
 `GithubUser` / `GithubToken` are present in `android/local.properties`, or that

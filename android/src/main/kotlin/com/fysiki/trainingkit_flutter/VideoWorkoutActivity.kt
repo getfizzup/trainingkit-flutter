@@ -5,11 +5,11 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.mediarouter.app.MediaRouteButton
-import com.fysiki.trainingkit.fragments.WorkoutVideoFragment
-import com.fysiki.trainingkit.interfaces.WorkoutVideoKitInterface
-import com.fysiki.trainingkit.states.SaveWorkoutState
-import com.fysiki.trainingkit.utils.JWTVerificationException
-import com.fysiki.trainingkit.utils.TrackingData
+import com.fizzup.trainingkit.fragments.WorkoutVideoFragment
+import com.fizzup.trainingkit.interfaces.WorkoutVideoKitInterface
+import com.fizzup.trainingkit.states.SaveWorkoutState
+import com.fizzup.trainingkit.utils.JWTVerificationException
+import com.fizzup.trainingkit.utils.TrackingData
 import com.google.gson.Gson
 import org.jdeferred.Promise
 import org.jdeferred.impl.DeferredObject

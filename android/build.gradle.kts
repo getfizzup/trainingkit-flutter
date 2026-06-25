@@ -104,7 +104,7 @@ kotlin {
 }
 
 dependencies {
-    implementation("com.fysiki:trainingkit:v32.1")
+    implementation("com.fizzup:trainingkit:v32.2")
     implementation("com.google.android.gms:play-services-cast-framework:21.4.0")
     implementation("androidx.appcompat:appcompat:1.7.1")
     implementation("androidx.activity:activity-ktx:1.11.0")

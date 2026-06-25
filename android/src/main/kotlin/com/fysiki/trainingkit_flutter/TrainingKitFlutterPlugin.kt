@@ -3,8 +3,8 @@ package com.fysiki.trainingkit_flutter
 import android.app.Application
 import android.content.Context
 import android.content.Intent
-import com.fysiki.trainingkit.TrainingKit
-import com.fysiki.trainingkit.utils.DeviceIdHelper
+import com.fizzup.trainingkit.TrainingKit
+import com.fizzup.trainingkit.utils.DeviceIdHelper
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
